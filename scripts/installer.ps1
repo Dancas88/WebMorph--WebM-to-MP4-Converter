@@ -180,65 +180,60 @@ if ($systemFFmpeg) {
 
 # Download portable FFmpeg if not found
 if (-not $ffmpegFound) {
-    Write-Color "  FFmpeg not found. Downloading portable FFmpeg..." "Yellow"
+    Write-Color "  FFmpeg not found. Downloading FFmpeg executable (~75MB)..." "Yellow"
+    Write-Color "  This is faster than the full package..." "Gray"
 
     if (-not (Test-Path $ffmpegDir)) {
         New-Item -ItemType Directory -Path $ffmpegDir -Force | Out-Null
     }
 
-    $ffmpegZip = Join-Path $ffmpegDir "ffmpeg-release-essentials.zip"
-    $ffmpegUrl = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+    # Use direct exe download from GitHub release (much faster - no extraction needed)
+    $ffmpegExe = Join-Path $ffmpegDir "ffmpeg.exe"
+    $ffmpegUrl = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"
+    $ffmpegZip = Join-Path $ffmpegDir "ffmpeg.zip"
+
+    Write-Color "  Downloading FFmpeg (~75MB, much faster than full package)..." "Yellow"
 
     if (Download-File -Url $ffmpegUrl -Output $ffmpegZip) {
-        Write-Color "  Extracting FFmpeg archive (this takes 1-2 minutes)..." "Yellow"
-        Write-Color "  Please wait, extracting ~100MB archive..." "Gray"
+        Write-Color "  Extracting only ffmpeg.exe (faster extraction)..." "Yellow"
 
-        Write-Progress -Activity "Installing FFmpeg" -Status "Extracting archive..." -PercentComplete 0
-        Expand-Archive -Path $ffmpegZip -DestinationPath $ffmpegDir -Force
-        Write-Progress -Activity "Installing FFmpeg" -Status "Archive extracted" -PercentComplete 50
+        # Extract only ffmpeg.exe from the zip (faster than extracting all)
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
 
-        Write-Color "  [OK] Archive extracted" "Green"
-        Write-Color "  Locating ffmpeg.exe..." "Yellow"
+        try {
+            $zip = [System.IO.Compression.ZipFile]::OpenRead($ffmpegZip)
 
-        # Find ffmpeg.exe in extracted folders
-        Write-Progress -Activity "Installing FFmpeg" -Status "Locating ffmpeg.exe..." -PercentComplete 60
-        $ffmpegExe = Get-ChildItem -Path $ffmpegDir -Filter "ffmpeg.exe" -Recurse | Select-Object -First 1 -ExpandProperty FullName
+            # Find ffmpeg.exe entry
+            $ffmpegEntry = $zip.Entries | Where-Object { $_.Name -eq "ffmpeg.exe" } | Select-Object -First 1
 
-        if ($ffmpegExe) {
-            Write-Color "  [OK] Found ffmpeg.exe" "Green"
-            Write-Color "  Moving binaries to installation directory..." "Yellow"
+            if ($ffmpegEntry) {
+                Write-Color "  Found ffmpeg.exe in archive, extracting..." "Gray"
 
-            # Move ffmpeg binaries to ffmpegDir root
-            Write-Progress -Activity "Installing FFmpeg" -Status "Moving binaries..." -PercentComplete 70
-            $binDir = Split-Path -Parent $ffmpegExe
-            Get-ChildItem -Path $binDir -Filter "*.exe" | ForEach-Object {
-                Move-Item $_.FullName $ffmpegDir -Force
-            }
+                # Extract just this file
+                [System.IO.Compression.ZipFileExtensions]::ExtractToFile($ffmpegEntry, $ffmpegExe, $true)
 
-            Write-Color "  Cleaning up temporary files..." "Yellow"
-            Write-Progress -Activity "Installing FFmpeg" -Status "Cleaning up..." -PercentComplete 85
+                $zip.Dispose()
+                Remove-Item $ffmpegZip -Force
 
-            # Clean up extraction folders
-            Get-ChildItem -Path $ffmpegDir -Directory | Remove-Item -Recurse -Force
-            Remove-Item $ffmpegZip
-
-            Write-Progress -Activity "Installing FFmpeg" -Status "Verifying installation..." -PercentComplete 95
-
-            $ffmpegExe = Join-Path $ffmpegDir "ffmpeg.exe"
-
-            if (Test-Path $ffmpegExe) {
-                Write-Progress -Activity "Installing FFmpeg" -Completed
-                Write-Color "  [OK] FFmpeg installed successfully to: $ffmpegDir" "Green"
-                $ffmpegFound = $true
+                if (Test-Path $ffmpegExe) {
+                    $size = [math]::Round((Get-Item $ffmpegExe).Length / 1MB, 2)
+                    Write-Color "  [OK] FFmpeg installed successfully ($size MB)" "Green"
+                    $ffmpegFound = $true
+                } else {
+                    Write-Color "  [ERROR] FFmpeg extraction failed" "Red"
+                    exit 1
+                }
             } else {
-                Write-Progress -Activity "Installing FFmpeg" -Completed
-                Write-Color "  [ERROR] FFmpeg installation failed - executable not found" "Red"
+                $zip.Dispose()
+                Write-Color "  [ERROR] Could not find ffmpeg.exe in archive" "Red"
                 exit 1
             }
-        } else {
-            Write-Progress -Activity "Installing FFmpeg" -Completed
-            Write-Color "  [ERROR] Could not find ffmpeg.exe in archive" "Red"
-            Write-Color "  This may indicate a corrupted download or archive format change" "Red"
+
+        } catch {
+            Write-Color "  [ERROR] Failed to extract FFmpeg: $_" "Red"
+            if (Test-Path $ffmpegZip) {
+                Remove-Item $ffmpegZip -Force -ErrorAction SilentlyContinue
+            }
             exit 1
         }
     } else {
