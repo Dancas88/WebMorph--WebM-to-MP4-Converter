@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebMorph</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            width: 320px;
+            padding: 20px;
+            background: #f9fafb;
+            color: #1f2937;
+        }
+
+        body.dark-theme {
+            background: #1f2937;
+            color: #f9fafb;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .tagline {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .status-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            color: #333;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-theme .status-card {
+            background: #374151;
+            color: #f9fafb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .status-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .status-row:first-child {
+            padding-top: 0;
+        }
+
+        .status-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+        body.dark-theme .status-label {
+            color: #9ca3af;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-ok {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-unknown {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 10px;
+            background: #3b82f6;
+            color: white;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .action-btn:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        body.dark-theme .action-btn {
+            background: #4b5563;
+            border-color: #4b5563;
+        }
+
+        body.dark-theme .action-btn:hover {
+            background: #6b7280;
+            border-color: #6b7280;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .info-text {
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 16px;
+            line-height: 1.5;
+        }
+
+        .setup-link {
+            color: #3b82f6;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .setup-link:hover {
+            color: #2563eb;
+        }
+
+        body.dark-theme .setup-link {
+            color: #60a5fa;
+        }
+
+        body.dark-theme .setup-link:hover {
+            color: #93c5fd;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>WebMorph</h1>
+        <div class="tagline">WebM → MP4 Converter</div>
+    </div>
+
+    <div class="status-card">
+        <div class="status-row">
+            <span class="status-label">Extension</span>
+            <span class="status-badge status-ok" id="ext-status">Active</span>
+        </div>
+        <div class="status-row">
+            <span class="status-label">Native Host</span>
+            <span class="status-badge status-unknown" id="host-status">Checking...</span>
+        </div>
+        <div class="status-row">
+            <span class="status-label">FFmpeg</span>
+            <span class="status-badge status-unknown" id="ffmpeg-status">Checking...</span>
+        </div>
+    </div>
+
+    <button class="action-btn" id="open-settings-btn">⚙️ Settings</button>
+
+    <div class="info-text">
+        WebMorph automatically converts downloaded WebM files to MP4 format.
+        <br><br>
+        <span id="setup-text" style="display: none;">
+            Missing components? <a class="setup-link" id="setup-link" href="#">Run Setup</a>
+        </span>
+    </div>
+
+    <script src="popup-simple.js"></script>
+</body>
+</html>

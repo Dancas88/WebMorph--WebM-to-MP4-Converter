@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiMp4fx - WebM to MP4 Converter</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            width: 400px;
+            padding: 16px;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        h1 {
+            font-size: 20px;
+            color: #3b82f6;
+            margin-bottom: 4px;
+        }
+
+        .version {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .status-section {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .status-value {
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .status-connected {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-disconnected {
+            background: #ef4444;
+            color: white;
+        }
+
+        .status-unknown {
+            background: #6b7280;
+            color: white;
+        }
+
+        .test-section {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 8px;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        button:active {
+            background: #1d4ed8;
+        }
+
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: monospace;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #1e40af;
+            margin-top: 12px;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #999;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #ddd;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* History styles */
+        .history-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            border-radius: 6px;
+            border-left: 3px solid #10b981;
+            font-size: 12px;
+        }
+
+        .history-item.error {
+            border-left-color: #ef4444;
+        }
+
+        .history-filename {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .history-time {
+            color: #6b7280;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+
+        .history-path {
+            color: #3b82f6;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 11px;
+        }
+
+        .history-path:hover {
+            color: #2563eb;
+        }
+
+        .history-error {
+            color: #ef4444;
+            font-size: 11px;
+        }
+
+        #history-list:empty::before {
+            content: "No conversions yet";
+            color: #9ca3af;
+            font-size: 13px;
+            display: block;
+            text-align: center;
+            padding: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>FiMp4fx Converter</h1>
+        <div class="version">v0.1.0 - Proof of Concept</div>
+    </div>
+
+    <div class="status-section">
+        <div class="section-title">System Status</div>
+
+        <div class="status-item">
+            <span class="status-label">Native Host:</span>
+            <span id="host-status" class="status-value status-unknown">Checking...</span>
+        </div>
+
+        <div class="status-item">
+            <span class="status-label">FFmpeg:</span>
+            <span id="ffmpeg-status" class="status-value status-unknown">Checking...</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="section-title">Connection Test</div>
+        <button id="test-connection-btn">Test Connection</button>
+        <button id="check-ffmpeg-btn">Check FFmpeg</button>
+    </div>
+
+    <div class="test-section">
+        <div class="section-title">Manual Conversion Test</div>
+
+        <div class="input-group">
+            <label for="input-path">Input File Path (.webm):</label>
+            <input
+                type="text"
+                id="input-path"
+                placeholder="C:\Users\User\Downloads\video.webm"
+            />
+        </div>
+
+        <button id="convert-btn">Start Conversion</button>
+
+        <div class="info-box">
+            <strong>Note:</strong>
+            Enter the full absolute path to a .webm file on your system.
+            The .mp4 file will be created in the same directory.
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="section-title">Conversion History</div>
+        <div id="history-list"></div>
+        <button id="clear-history-btn" style="background: #6b7280; margin-top: 8px;">Clear History</button>
+    </div>
+
+    <div class="footer">
+        FiMp4fx - Phase 2: Automatic Conversion<br>
+        Powered by FFmpeg
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

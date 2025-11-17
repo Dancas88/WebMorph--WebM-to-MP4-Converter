@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebMorph Settings</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            color: #1f2937;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        body.dark-theme {
+            background: #111827;
+            color: #f9fafb;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+
+        body.dark-theme h1 {
+            color: #f9fafb;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #6b7280;
+        }
+
+        body.dark-theme .subtitle {
+            color: #9ca3af;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-theme .section {
+            background: #1f2937;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        body.dark-theme .section-title {
+            color: #f9fafb;
+        }
+
+        .setting-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        body.dark-theme .setting-item {
+            border-bottom-color: #374151;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .setting-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #374151;
+            font-size: 15px;
+        }
+
+        body.dark-theme .setting-label {
+            color: #e5e7eb;
+        }
+
+        .setting-description {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        body.dark-theme .setting-description {
+            color: #9ca3af;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #d1d5db;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #3b82f6;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            color: #1f2937;
+        }
+
+        body.dark-theme select,
+        body.dark-theme input[type="text"],
+        body.dark-theme input[type="number"] {
+            background: #374151;
+            border-color: #4b5563;
+            color: #f9fafb;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        body.dark-theme .radio-option {
+            border-color: #374151;
+        }
+
+        .radio-option:hover {
+            background: #f3f4f6;
+        }
+
+        body.dark-theme .radio-option:hover {
+            background: #374151;
+        }
+
+        .radio-option input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .radio-option.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        body.dark-theme .radio-option.selected {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .button {
+            padding: 12px 24px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .button:hover {
+            background: #2563eb;
+        }
+
+        .button:active {
+            background: #1d4ed8;
+        }
+
+        .button.secondary {
+            background: #6b7280;
+        }
+
+        .button.secondary:hover {
+            background: #4b5563;
+        }
+
+        .save-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 16px;
+            display: none;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-theme .save-bar {
+            background: #1f2937;
+            border-top-color: #374151;
+        }
+
+        .save-bar.visible {
+            display: flex;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1e40af;
+            margin-top: 12px;
+        }
+
+        body.dark-theme .info-box {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+
+        .custom-quality-inputs {
+            display: none;
+            margin-top: 12px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        body.dark-theme .custom-quality-inputs {
+            background: #374151;
+            border-color: #4b5563;
+        }
+
+        .custom-quality-inputs.visible {
+            display: block;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .input-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-group {
+            flex: 1;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #6b7280;
+        }
+
+        body.dark-theme .input-group label {
+            color: #9ca3af;
+        }
+
+        .theme-toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .theme-icon {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>WebMorph Settings</h1>
+            <div class="subtitle">Configure your WebM to MP4 conversion preferences</div>
+        </div>
+
+        <!-- Appearance Settings -->
+        <div class="section">
+            <div class="section-title">
+                <span>🎨</span>
+                <span>Appearance</span>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">Theme</label>
+                <div class="setting-description">Choose between light and dark theme, or follow system preference</div>
+                <div class="theme-toggle-container">
+                    <select id="theme-select">
+                        <option value="system">System Default</option>
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversion Settings -->
+        <div class="section">
+            <div class="section-title">
+                <span>⚙️</span>
+                <span>Conversion Settings</span>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">Enable Auto-Conversion</label>
+                <div class="setting-description">Automatically convert downloaded WebM files to MP4</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="auto-convert-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">Video Quality</label>
+                <div class="setting-description">Select the output video quality for conversions</div>
+                <div class="radio-group" id="quality-options">
+                    <label class="radio-option">
+                        <input type="radio" name="quality" value="low">
+                        <div>
+                            <strong>Low</strong> - Smaller file size, faster conversion (CRF 28)
+                        </div>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="quality" value="medium" checked>
+                        <div>
+                            <strong>Medium</strong> - Balanced quality and size (CRF 23)
+                        </div>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="quality" value="high">
+                        <div>
+                            <strong>High</strong> - Best quality, larger file size (CRF 18)
+                        </div>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="quality" value="custom">
+                        <div>
+                            <strong>Custom</strong> - Advanced settings
+                        </div>
+                    </label>
+                </div>
+
+                <div class="custom-quality-inputs" id="custom-quality-inputs">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>CRF Value (0-51)</label>
+                            <input type="number" id="custom-crf" min="0" max="51" value="23" placeholder="23">
+                        </div>
+                        <div class="input-group">
+                            <label>Preset</label>
+                            <select id="custom-preset">
+                                <option value="ultrafast">Ultra Fast</option>
+                                <option value="superfast">Super Fast</option>
+                                <option value="veryfast">Very Fast</option>
+                                <option value="faster">Faster</option>
+                                <option value="fast">Fast</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="slow">Slow</option>
+                                <option value="slower">Slower</option>
+                                <option value="veryslow">Very Slow</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <strong>CRF:</strong> Lower values = better quality, larger files. Recommended: 18-28<br>
+                        <strong>Preset:</strong> Slower presets = better compression, longer conversion time
+                    </div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">Output Format</label>
+                <div class="setting-description">Choose the output video format</div>
+                <select id="output-format">
+                    <option value="mp4" selected>MP4 (Recommended)</option>
+                    <option value="mkv">MKV (Matroska)</option>
+                    <option value="avi">AVI</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- File Management -->
+        <div class="section">
+            <div class="section-title">
+                <span>📁</span>
+                <span>File Management</span>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">Delete Original Files</label>
+                <div class="setting-description">Automatically delete the original WebM file after successful conversion</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="delete-original-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">Custom Output Folder</label>
+                <div class="setting-description">Save converted files to a custom location (leave empty for same folder as original)</div>
+                <input type="text" id="output-folder" placeholder="C:\Users\YourName\Videos\Converted">
+                <div class="info-box" style="margin-top: 8px;">
+                    Leave empty to save converted files in the same folder as the original WebM file
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="section">
+            <div class="section-title">
+                <span>🔔</span>
+                <span>Notifications</span>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">Show Notifications</label>
+                <div class="setting-description">Display browser notifications for conversion status</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="notifications-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">Show Badge</label>
+                <div class="setting-description">Display conversion status on the extension icon</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="badge-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Advanced Settings -->
+        <div class="section">
+            <div class="section-title">
+                <span>🔧</span>
+                <span>Advanced</span>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">FFmpeg Custom Arguments</label>
+                <div class="setting-description">Additional FFmpeg command-line arguments (advanced users only)</div>
+                <input type="text" id="custom-args" placeholder="-threads 4 -movflags +faststart">
+                <div class="info-box" style="margin-top: 8px;">
+                    <strong>Warning:</strong> Incorrect arguments may cause conversion failures. Leave empty unless you know what you're doing.
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">Reset to Defaults</label>
+                <div class="setting-description">Reset all settings to their default values</div>
+                <button class="button secondary" id="reset-btn">Reset Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Bar -->
+    <div class="save-bar" id="save-bar">
+        <button class="button" id="save-btn">Save Changes</button>
+        <button class="button secondary" id="cancel-btn">Cancel</button>
+    </div>
+
+    <script src="options.js"></script>
+</body>
+</html>

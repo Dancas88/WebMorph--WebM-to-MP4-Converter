@@ -1,0 +1,7 @@
+{
+  "name": "com.fimp4fx.webm_converter",
+  "description": "Native messaging host for WebM to MP4 converter",
+  "path": "D:\\Progetti DEV\\FiMp4fx\\native-host\\host_wrapper.bat",
+  "type": "stdio",
+  "allowed_extensions": ["webmorph@webmorph.com"]
+}

@@ -1,0 +1,44 @@
+{
+  "manifest_version": 2,
+  "name": "WebMorph - WebM to MP4 Converter",
+  "version": "1.0.0",
+  "description": "Automatically converts downloaded WebM files to MP4 format using FFmpeg",
+
+  "applications": {
+    "gecko": {
+      "id": "webmorph@webmorph.com",
+      "strict_min_version": "60.0"
+    }
+  },
+
+  "icons": {
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png"
+  },
+
+  "permissions": [
+    "downloads",
+    "downloads.open",
+    "notifications",
+    "storage",
+    "nativeMessaging"
+  ],
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "browser_action": {
+    "default_icon": {
+      "48": "icons/icon-48.png",
+      "96": "icons/icon-96.png"
+    },
+    "default_title": "WebMorph Converter",
+    "default_popup": "popup/popup-simple.html"
+  },
+
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  }
+}
