@@ -3,9 +3,15 @@
 
 $ErrorActionPreference = "Stop"
 
-# Get the script's directory
+# Get the script's directory and project root
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$projectRoot = $scriptDir
+
+# Determine project root (parent of scripts folder)
+if ((Split-Path -Leaf $scriptDir) -eq "scripts") {
+    $projectRoot = Split-Path -Parent $scriptDir
+} else {
+    $projectRoot = $scriptDir
+}
 
 # Configuration
 $pythonDir = Join-Path $projectRoot "runtime\python"
@@ -32,43 +38,43 @@ function Download-File {
     )
 
     try {
-        Write-Color "  Downloading from: $Url" "Gray"
+        Write-Color "  Starting download..." "Yellow"
+        Write-Color "  URL: $Url" "Gray"
 
-        # Get file size
-        $request = [System.Net.HttpWebRequest]::Create($Url)
-        $request.Method = "HEAD"
-        $response = $request.GetResponse()
-        $totalBytes = $response.ContentLength
-        $response.Close()
+        # Use BitsTransfer if available (shows better progress)
+        if (Get-Command Start-BitsTransfer -ErrorAction SilentlyContinue) {
+            Write-Color "  Using BITS transfer (with progress)..." "Gray"
+            Start-BitsTransfer -Source $Url -Destination $Output -DisplayName "Downloading file" -Description "Please wait..."
 
-        $fileSizeMB = [math]::Round($totalBytes / 1MB, 2)
-        Write-Color "  File size: $fileSizeMB MB" "Gray"
+            if (Test-Path $Output) {
+                $downloadedSize = [math]::Round((Get-Item $Output).Length / 1MB, 2)
+                Write-Color "  [OK] Download completed ($downloadedSize MB)" "Green"
+                return $true
+            } else {
+                throw "Downloaded file not found"
+            }
+        } else {
+            # Fallback to WebClient with simple progress
+            Write-Color "  Downloading (please wait, this may take several minutes)..." "Gray"
 
-        # Download with progress
-        $webClient = New-Object System.Net.WebClient
+            $webClient = New-Object System.Net.WebClient
+            $webClient.DownloadFile($Url, $Output)
+            $webClient.Dispose()
 
-        # Progress event handler
-        $progressHandler = {
-            param($sender, $e)
-            $receivedMB = [math]::Round($e.BytesReceived / 1MB, 2)
-            $totalMB = [math]::Round($e.TotalBytesToReceive / 1MB, 2)
-            $percent = $e.ProgressPercentage
-            Write-Progress -Activity "Downloading" -Status "$receivedMB MB / $totalMB MB" -PercentComplete $percent
+            if (Test-Path $Output) {
+                $downloadedSize = [math]::Round((Get-Item $Output).Length / 1MB, 2)
+                Write-Color "  [OK] Download completed ($downloadedSize MB)" "Green"
+                return $true
+            } else {
+                throw "Downloaded file not found"
+            }
         }
 
-        Register-ObjectEvent -InputObject $webClient -EventName DownloadProgressChanged -Action $progressHandler | Out-Null
-
-        $webClient.DownloadFile($Url, $Output)
-
-        # Cleanup
-        Get-EventSubscriber | Where-Object { $_.SourceObject -eq $webClient } | Unregister-Event
-        Write-Progress -Activity "Downloading" -Completed
-
-        Write-Color "  [OK] Download completed" "Green"
-        return $true
     } catch {
         Write-Color "  [ERROR] Download failed: $_" "Red"
-        Write-Progress -Activity "Downloading" -Completed
+        if (Test-Path $Output) {
+            Remove-Item $Output -Force -ErrorAction SilentlyContinue
+        }
         return $false
     }
 }
