@@ -6,39 +6,6 @@
 
 **WebMorph** is a powerful Firefox extension that automatically converts downloaded WebM files to MP4 format using FFmpeg. Say goodbye to compatibility issues and enjoy your videos in a universally supported format.
 
-## ⚡ Quick Start
-
-WebMorph requires **two simple steps** to install:
-
-### Step 1: Install Firefox Extension (from AMO)
-
-[![Install from Firefox Add-ons](https://img.shields.io/badge/Firefox%20Add--ons-Install-orange?style=for-the-badge&logo=firefox)](https://addons.mozilla.org/firefox/addon/webmorph/)
-
-Click the button above or visit: **https://addons.mozilla.org/firefox/addon/webmorph/**
-
-This installs the browser extension permanently.
-
-### Step 2: Install Native Components (from GitHub)
-
-The extension needs Python and FFmpeg to work. Run our automated installer:
-
-**Windows:**
-1. Download this repository (green "Code" button → Download ZIP)
-2. Extract the ZIP file
-3. Go to the `scripts/` folder
-4. Run **`INSTALL.bat`** (double-click)
-5. Follow the on-screen instructions
-
-The installer will:
-- ✅ Download Python (if needed)
-- ✅ Download FFmpeg (if needed)
-- ✅ Configure native messaging for Firefox
-- ✅ Set up all paths automatically
-
-**That's it!** Restart Firefox and you're ready to go.
-
----
-
 ## Features
 
 ✨ **Automatic Conversion** - WebM files are automatically converted to MP4 upon download completion
@@ -50,71 +17,148 @@ The installer will:
 📁 **Custom Output Folder** - Save converted files to any location you prefer
 🎯 **Badge Indicators** - Visual feedback on extension icon (✓ success, ✗ error, ... converting)
 
----
-
 ## Table of Contents
 
-- [Quick Start](#-quick-start)
-- [How It Works](#how-it-works)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
 - [Usage](#usage)
 - [Settings](#settings)
 - [Troubleshooting](#troubleshooting)
-- [Technical Details](#technical-details)
-- [Contributing](#contributing)
+- [Development](#development)
 - [License](#license)
 
----
+## Prerequisites
 
-## How It Works
+Before installing WebMorph, ensure you have:
 
-1. **Download any WebM file** from the internet
-2. **WebMorph detects** the download automatically
-3. **Conversion starts** when download completes
-4. **Notification appears** when conversion finishes
-5. **Original WebM deleted** (optional, configurable)
+- **Firefox** 60 or later
+- **Python** 3.8 or later
+- **FFmpeg** (for video conversion)
 
-All processing happens **locally on your computer** - no data is sent anywhere.
+### Installing FFmpeg
 
----
+**Ubuntu/Debian:**
+```bash
+sudo apt update && sudo apt install ffmpeg
+```
+
+**macOS (Homebrew):**
+```bash
+brew install ffmpeg
+```
+
+**Windows:**
+```cmd
+winget install ffmpeg
+```
+Or download from [ffmpeg.org](https://ffmpeg.org/download.html) and add to PATH.
+
+### Verify Installation
+
+```bash
+python3 --version  # or python --version on Windows
+ffmpeg -version
+```
+
+## Installation
+
+### Step 1: Download or Clone Repository
+
+```bash
+git clone https://github.com/yourusername/webmorph.git
+cd webmorph
+```
+
+### Step 2: Run Setup Script
+
+The setup script will configure the native messaging host automatically.
+
+**Linux/macOS:**
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+**Windows:**
+```cmd
+setup.bat
+```
+
+**Alternative (Manual Setup):**
+```cmd
+setup-manual.bat
+```
+
+The setup script will:
+1. Verify Python and FFmpeg installation
+2. Create the native messaging manifest
+3. Register the native host with Firefox
+4. Configure all necessary paths
+
+### Step 3: Load Extension in Firefox
+
+1. Open Firefox and navigate to `about:debugging`
+2. Click **"This Firefox"** in the sidebar
+3. Click **"Load Temporary Add-on..."**
+4. Navigate to the `extension/` folder
+5. Select `manifest.json`
+6. The extension icon should appear in your toolbar
+
+> **Note:** For permanent installation, you can package the extension (see [Packaging](#packaging) section)
+
+## Configuration
+
+### First Launch
+
+After installation:
+
+1. Click the WebMorph icon in the Firefox toolbar
+2. Verify the status indicators:
+   - **Extension**: Should show "Active"
+   - **Native Host**: Should show "Ready"
+   - **FFmpeg**: Should show "Ready"
+
+If any component shows "Not Found":
+- Click **"Run Setup"** link in the popup
+- Follow the setup instructions
+- Restart Firefox if necessary
 
 ## Usage
 
-### First Time Setup Verification
+### Automatic Conversion
 
-After installing both the extension and native components:
+Once installed and configured, WebMorph works automatically:
 
-1. Click the **WebMorph icon** in Firefox toolbar
-2. Verify all status indicators show **"Ready"**:
-   - ✅ Extension: Active
-   - ✅ Native Host: Ready
-   - ✅ FFmpeg: Ready
+1. Download any WebM file from the internet
+2. WebMorph detects the download
+3. Upon completion, conversion starts automatically
+4. You'll receive a notification when done
+5. Click the notification to open the folder
+6. The original WebM is deleted (if enabled in settings)
 
-If any shows "Not Found", re-run `scripts/INSTALL.bat`
+### Manual Test
 
-### Converting Videos
+To test the extension manually:
 
-**It's automatic!** Just download any `.webm` file and WebMorph handles the rest.
-
-You'll see:
-- 🔔 Notification: "WebM Download Detected"
-- ⏳ Badge on icon shows "..." (converting)
-- 🔔 Notification: "Conversion Completed"
-- ✅ Badge shows "✓" for 5 seconds
-
-Click the completion notification to open the folder containing your MP4 file.
-
----
+1. Click the WebMorph icon
+2. The popup shows current status
+3. Click **⚙️ Settings** to configure options
 
 ## Settings
 
-Click the **⚙️ Settings** button in the popup to configure:
+Access settings by clicking the **⚙️ Settings** button in the popup.
+
+### Appearance
+
+- **Theme**: Choose between System Default, Light, or Dark theme
 
 ### Conversion Settings
 
 - **Enable Auto-Conversion**: Toggle automatic conversion on/off
 - **Video Quality**:
   - **Low**: Smaller file size, faster (CRF 28)
-  - **Medium**: Balanced quality and size (CRF 23) - *Default*
+  - **Medium**: Balanced quality and size (CRF 23) - Default
   - **High**: Best quality, larger files (CRF 18)
   - **Custom**: Advanced settings with CRF and preset control
 - **Output Format**: Choose MP4 (recommended), MKV, or AVI
@@ -124,54 +168,106 @@ Click the **⚙️ Settings** button in the popup to configure:
 - **Delete Original Files**: Remove WebM files after successful conversion
 - **Custom Output Folder**: Specify a different location for converted files
 
-### Appearance & Notifications
+### Notifications
 
-- **Theme**: System Default, Light, or Dark
-- **Show Notifications**: Display browser notifications
-- **Show Badge**: Display status on extension icon
+- **Show Notifications**: Display browser notifications for conversion status
+- **Show Badge**: Display status indicators on the extension icon
 
 ### Advanced
 
-- **FFmpeg Custom Arguments**: Add custom command-line arguments
-- **Reset to Defaults**: Restore all settings
-
----
+- **FFmpeg Custom Arguments**: Add custom command-line arguments for FFmpeg
+- **Reset to Defaults**: Restore all settings to default values
 
 ## Troubleshooting
 
-### Extension shows "Native Host: Not Found"
+### Native Host Not Connecting
 
-**Solution:**
-1. Make sure you ran `scripts/INSTALL.bat`
-2. Restart Firefox completely
-3. If still not working, re-run `INSTALL.bat`
+**Symptoms:**
+- Popup shows "Native Host: Not Found"
+- Conversions don't start
 
-### Extension shows "FFmpeg: Not Found"
+**Solutions:**
+1. Re-run the setup script:
+   ```bash
+   ./setup.sh  # or setup.bat on Windows
+   ```
+2. Verify Python is in PATH:
+   ```bash
+   which python3  # Linux/macOS
+   where python   # Windows
+   ```
+3. Check Firefox console (`about:debugging` → Inspect → Console) for errors
 
-**Solution:**
-1. Re-run `scripts/INSTALL.bat`
-2. Check if antivirus blocked the download
-3. Manually verify FFmpeg is installed
+### FFmpeg Not Found
+
+**Symptoms:**
+- Popup shows "FFmpeg: Not Found"
+- Conversions fail with "FFmpeg not available" error
+
+**Solutions:**
+1. Verify FFmpeg installation:
+   ```bash
+   ffmpeg -version
+   ```
+2. Add FFmpeg to system PATH
+3. On Windows, edit `host_wrapper.bat` to include FFmpeg path
 
 ### Conversion Fails
 
-**Check:**
-- ✅ Disk space available
-- ✅ File isn't locked by another program
-- ✅ Antivirus isn't blocking FFmpeg
-- ✅ Path doesn't contain special characters
+**Symptoms:**
+- Notification shows "Conversion Failed"
+- Badge shows ✗
 
-**View Logs:**
-- Extension console: `about:debugging` → WebMorph → Inspect → Console
-- Native host log: `native-host/host.log`
+**Solutions:**
+1. Check file permissions (read/write access)
+2. Verify disk space is available
+3. Check FFmpeg logs in native host
+4. Try with a different WebM file
 
----
+### Windows-Specific Issues
 
-## Technical Details
+**Issue:** "Permission denied" or "Access denied"
+- Run setup.bat as Administrator
+- Check antivirus isn't blocking Python/FFmpeg
+
+**Issue:** Native host disconnects immediately
+- Verify `host_wrapper.bat` has correct Python path
+- Check FFmpeg is in PATH or wrapper includes it
+
+## Project Structure
+
+```
+webmorph/
+├── extension/
+│   ├── manifest.json          # Extension manifest
+│   ├── background.js          # Core logic and native messaging
+│   ├── popup/
+│   │   ├── popup-simple.html  # User-friendly popup UI
+│   │   ├── popup-simple.js    # Popup logic
+│   │   ├── popup.html         # Developer popup (legacy)
+│   │   └── popup.js           # Developer popup logic (legacy)
+│   ├── options/
+│   │   ├── options.html       # Settings page
+│   │   └── options.js         # Settings logic
+│   └── icons/
+│       ├── icon-48.png        # Extension icon 48x48
+│       └── icon-96.png        # Extension icon 96x96
+├── native-host/
+│   ├── host.py                # Python native messaging host
+│   ├── host_wrapper.bat       # Windows wrapper script
+│   └── com.fimp4fx.webm_converter.json  # Native messaging manifest
+├── setup.sh                   # Linux/macOS setup script
+├── setup.bat                  # Windows setup script
+├── setup-manual.bat           # Windows manual setup (simpler)
+├── README.md                  # This file
+└── roadmap.md                 # Development roadmap
+```
+
+## Development
 
 ### Architecture
 
-WebMorph consists of three components:
+WebMorph consists of three main components:
 
 1. **Firefox Extension** (JavaScript)
    - Monitors downloads via `browser.downloads` API
@@ -213,65 +309,66 @@ Native Host → Extension:
 }
 ```
 
-### Project Structure
+### Packaging
 
-```
-webmorph/
-├── extension/               # Firefox extension source
-│   ├── manifest.json       # Extension manifest
-│   ├── background.js       # Core logic
-│   ├── popup/              # Popup UI
-│   ├── options/            # Settings page
-│   └── icons/              # Extension icons
-├── native-host/            # Python native messaging host
-│   ├── host.py            # Main native host script
-│   └── com.fimp4fx.webm_converter.json
-├── scripts/                # Installation scripts
-│   ├── INSTALL.bat        # Windows installer
-│   └── installer.ps1      # PowerShell installer
-├── docs/                   # Documentation
-├── README.md              # This file
-├── LICENSE                # MIT License
-└── CONTRIBUTING.md        # Contribution guidelines
-```
+To create a distributable `.xpi` package:
 
----
+1. Remove temporary/dev files from `extension/` folder
+2. Update version in `manifest.json`
+3. Create package:
+   ```bash
+   cd extension
+   zip -r ../webmorph-1.0.0.xpi *
+   ```
+4. Sign the package at [addons.mozilla.org](https://addons.mozilla.org)
 
-## Privacy
+### Testing
 
-- ✅ **No data collection** - WebMorph does not collect any personal data
-- ✅ **Local processing** - All conversions happen on your computer
-- ✅ **No external servers** - No files are uploaded anywhere
-- ✅ **Open source** - Full transparency, code available on GitHub
-
-See [PRIVACY-POLICY.md](PRIVACY-POLICY.md) for details.
-
----
-
-## Requirements
-
-- **Firefox**: Version 79 or later
-- **Windows**: 10 or 11 (64-bit)
-- **Disk Space**: ~500MB for Python + FFmpeg
-
-**Note:** Currently Windows-only. Linux/macOS support planned for future releases.
-
----
+Manual testing checklist:
+- [ ] Extension loads without errors
+- [ ] Native host connects successfully
+- [ ] FFmpeg is detected
+- [ ] Download detection works
+- [ ] Automatic conversion completes
+- [ ] Original file is deleted (if enabled)
+- [ ] Notifications appear and are clickable
+- [ ] Settings page opens and saves preferences
+- [ ] Theme switching works
+- [ ] Quality presets produce expected results
 
 ## Changelog
 
-### Version 1.0.0 (2025-01-17)
+### Version 1.0.0 (2025-01-14)
 
-**Initial Release:**
-- ✅ Automatic WebM to MP4 conversion
-- ✅ Native messaging host with Python + FFmpeg
-- ✅ Quality presets and customization
-- ✅ Smart notifications and badge indicators
+**Phase 1: Proof of Concept** ✅
+- ✅ Native messaging host (Python + FFmpeg)
+- ✅ Firefox extension with manual conversion
+- ✅ Basic UI with status indicators
+- ✅ Cross-platform setup scripts
+
+**Phase 2: Automatic Download Interception** ✅
+- ✅ Automatic WebM detection on download
+- ✅ Conversion triggers on download completion
+- ✅ Original file deletion after success
+- ✅ Browser notifications with clickable folder links
+- ✅ Badge indicators on extension icon
+- ✅ Conversion history tracking
+
+**Phase 3: Settings & Polish** ✅
 - ✅ Comprehensive settings page
 - ✅ Light/Dark theme support
-- ✅ Published on Firefox Add-ons (AMO)
+- ✅ Quality presets (Low/Medium/High/Custom)
+- ✅ Multiple output formats (MP4/MKV/AVI)
+- ✅ Custom output folder selection
+- ✅ Toggle auto-conversion on/off
+- ✅ Toggle notifications and badge
+- ✅ Custom FFmpeg arguments
+- ✅ Simplified popup for end users
 
----
+**Current Version:**
+- Renamed project to WebMorph
+- Updated all branding and documentation
+- Prepared for packaging and distribution
 
 ## Contributing
 
@@ -283,32 +380,24 @@ Contributions are welcome! Please:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
-
----
-
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/webmorph/issues)
-- **Documentation**: This README and inline code documentation
-- **Firefox Add-ons**: [WebMorph on AMO](https://addons.mozilla.org/firefox/addon/webmorph/)
-
----
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Acknowledgments
 
 - FFmpeg team for the amazing video conversion tool
-- Mozilla for the excellent WebExtensions API and Add-ons platform
+- Mozilla for the excellent WebExtensions API
 - The open-source community
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/yourusername/webmorph/issues)
+- **Documentation**: [GitHub Wiki](https://github.com/yourusername/webmorph/wiki)
+- **Email**: support@webmorph.com
 
 ---
 
-**Made with ❤️ for the Firefox community**
+**Made with ❤️ by the WebMorph Team**
 
-**Version**: 1.0.0 | **Platform**: Windows | **License**: MIT
+**Version**: 1.0.0 | **Last Updated**: 2025-01-14

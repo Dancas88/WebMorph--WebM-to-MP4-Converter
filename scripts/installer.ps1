@@ -24,7 +24,7 @@ function Write-Color {
     Write-Host $Text -ForegroundColor $Color
 }
 
-# Helper function to download files
+# Helper function to download files with progress
 function Download-File {
     param(
         [string]$Url,
@@ -33,11 +33,42 @@ function Download-File {
 
     try {
         Write-Color "  Downloading from: $Url" "Gray"
+
+        # Get file size
+        $request = [System.Net.HttpWebRequest]::Create($Url)
+        $request.Method = "HEAD"
+        $response = $request.GetResponse()
+        $totalBytes = $response.ContentLength
+        $response.Close()
+
+        $fileSizeMB = [math]::Round($totalBytes / 1MB, 2)
+        Write-Color "  File size: $fileSizeMB MB" "Gray"
+
+        # Download with progress
         $webClient = New-Object System.Net.WebClient
+
+        # Progress event handler
+        $progressHandler = {
+            param($sender, $e)
+            $receivedMB = [math]::Round($e.BytesReceived / 1MB, 2)
+            $totalMB = [math]::Round($e.TotalBytesToReceive / 1MB, 2)
+            $percent = $e.ProgressPercentage
+            Write-Progress -Activity "Downloading" -Status "$receivedMB MB / $totalMB MB" -PercentComplete $percent
+        }
+
+        Register-ObjectEvent -InputObject $webClient -EventName DownloadProgressChanged -Action $progressHandler | Out-Null
+
         $webClient.DownloadFile($Url, $Output)
+
+        # Cleanup
+        Get-EventSubscriber | Where-Object { $_.SourceObject -eq $webClient } | Unregister-Event
+        Write-Progress -Activity "Downloading" -Completed
+
+        Write-Color "  [OK] Download completed" "Green"
         return $true
     } catch {
         Write-Color "  [ERROR] Download failed: $_" "Red"
+        Write-Progress -Activity "Downloading" -Completed
         return $false
     }
 }
@@ -100,16 +131,19 @@ if (-not $pythonFound) {
 
     if (Download-File -Url $pythonUrl -Output $pythonZip) {
         Write-Color "  Extracting Python..." "Yellow"
+        Write-Progress -Activity "Installing Python" -Status "Extracting..." -PercentComplete 0
         Expand-Archive -Path $pythonZip -DestinationPath $pythonDir -Force
+        Write-Progress -Activity "Installing Python" -Status "Cleaning up..." -PercentComplete 80
         Remove-Item $pythonZip
+        Write-Progress -Activity "Installing Python" -Completed
 
         $pythonExe = Join-Path $pythonDir "python.exe"
 
         if (Test-Path $pythonExe) {
-            Write-Color "  [OK] Python installed to: $pythonDir" "Green"
+            Write-Color "  [OK] Python installed successfully to: $pythonDir" "Green"
             $pythonFound = $true
         } else {
-            Write-Color "  [ERROR] Python installation failed" "Red"
+            Write-Color "  [ERROR] Python installation failed - executable not found" "Red"
             exit 1
         }
     } else {
@@ -150,34 +184,55 @@ if (-not $ffmpegFound) {
     $ffmpegUrl = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
 
     if (Download-File -Url $ffmpegUrl -Output $ffmpegZip) {
-        Write-Color "  Extracting FFmpeg (this may take a moment)..." "Yellow"
+        Write-Color "  Extracting FFmpeg archive (this takes 1-2 minutes)..." "Yellow"
+        Write-Color "  Please wait, extracting ~100MB archive..." "Gray"
+
+        Write-Progress -Activity "Installing FFmpeg" -Status "Extracting archive..." -PercentComplete 0
         Expand-Archive -Path $ffmpegZip -DestinationPath $ffmpegDir -Force
+        Write-Progress -Activity "Installing FFmpeg" -Status "Archive extracted" -PercentComplete 50
+
+        Write-Color "  [OK] Archive extracted" "Green"
+        Write-Color "  Locating ffmpeg.exe..." "Yellow"
 
         # Find ffmpeg.exe in extracted folders
+        Write-Progress -Activity "Installing FFmpeg" -Status "Locating ffmpeg.exe..." -PercentComplete 60
         $ffmpegExe = Get-ChildItem -Path $ffmpegDir -Filter "ffmpeg.exe" -Recurse | Select-Object -First 1 -ExpandProperty FullName
 
         if ($ffmpegExe) {
+            Write-Color "  [OK] Found ffmpeg.exe" "Green"
+            Write-Color "  Moving binaries to installation directory..." "Yellow"
+
             # Move ffmpeg binaries to ffmpegDir root
+            Write-Progress -Activity "Installing FFmpeg" -Status "Moving binaries..." -PercentComplete 70
             $binDir = Split-Path -Parent $ffmpegExe
             Get-ChildItem -Path $binDir -Filter "*.exe" | ForEach-Object {
                 Move-Item $_.FullName $ffmpegDir -Force
             }
 
+            Write-Color "  Cleaning up temporary files..." "Yellow"
+            Write-Progress -Activity "Installing FFmpeg" -Status "Cleaning up..." -PercentComplete 85
+
             # Clean up extraction folders
             Get-ChildItem -Path $ffmpegDir -Directory | Remove-Item -Recurse -Force
             Remove-Item $ffmpegZip
 
+            Write-Progress -Activity "Installing FFmpeg" -Status "Verifying installation..." -PercentComplete 95
+
             $ffmpegExe = Join-Path $ffmpegDir "ffmpeg.exe"
 
             if (Test-Path $ffmpegExe) {
-                Write-Color "  [OK] FFmpeg installed to: $ffmpegDir" "Green"
+                Write-Progress -Activity "Installing FFmpeg" -Completed
+                Write-Color "  [OK] FFmpeg installed successfully to: $ffmpegDir" "Green"
                 $ffmpegFound = $true
             } else {
-                Write-Color "  [ERROR] FFmpeg installation failed" "Red"
+                Write-Progress -Activity "Installing FFmpeg" -Completed
+                Write-Color "  [ERROR] FFmpeg installation failed - executable not found" "Red"
                 exit 1
             }
         } else {
+            Write-Progress -Activity "Installing FFmpeg" -Completed
             Write-Color "  [ERROR] Could not find ffmpeg.exe in archive" "Red"
+            Write-Color "  This may indicate a corrupted download or archive format change" "Red"
             exit 1
         }
     } else {

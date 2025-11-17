@@ -1,0 +1,117 @@
+# WebMorph - Git Ignore File
+
+# ============================================
+# Runtime directories (downloaded components)
+# ============================================
+runtime/
+*.zip
+*.tar.gz
+
+# ============================================
+# Native host logs and temporary files
+# ============================================
+native-host/host.log
+native-host/__pycache__/
+native-host/*.pyc
+native-host/*.pyo
+
+# ============================================
+# Build output
+# ============================================
+release/
+
+# ============================================
+# Development files
+# ============================================
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ============================================
+# IDE and editor files
+# ============================================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# ============================================
+# Node modules (if using web-ext)
+# ============================================
+node_modules/
+package-lock.json
+yarn.lock
+
+# ============================================
+# System files
+# ============================================
+.Trash-*
+.nfs*
+*.swp
+*.swo
+*~
+
+# ============================================
+# Temporary testing files
+# ============================================
+test-files/
+*.webm
+*.mp4
+!docs/**/*.mp4
+!docs/**/*.webm
+
+# ============================================
+# Sensitive data (API keys, credentials)
+# ============================================
+.env
+.env.local
+credentials.json
+secrets.json
+
+# ============================================
+# Distribution artifacts (keep source only)
+# ============================================
+*.xpi
+web-ext-artifacts/
+
+# ============================================
+# Windows specific
+# ============================================
+*.lnk
+$RECYCLE.BIN/
+ehthumbs.db
+
+# ============================================
+# macOS specific
+# ============================================
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# ============================================
+# Linux specific
+# ============================================
+.directory
+.Trash-*/
+
+# ============================================
+# Python specific
+# ============================================
+*.py[cod]
+__pycache__/
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ============================================
+# Keep these files
+# ============================================
+!.gitkeep
+!README.md
+!LICENSE
