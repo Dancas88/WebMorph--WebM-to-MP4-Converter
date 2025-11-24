@@ -6,6 +6,8 @@
 
 **WebMorph** is a powerful Firefox extension that automatically converts downloaded WebM files to MP4 format using FFmpeg. Say goodbye to compatibility issues and enjoy your videos in a universally supported format.
 
+📦 **[Quick Installation Guide →](INSTALL.md)** | 📖 Full Documentation Below
+
 ## Features
 
 ✨ **Automatic Conversion** - WebM files are automatically converted to MP4 upon download completion
@@ -30,79 +32,103 @@
 
 ## Prerequisites
 
-Before installing WebMorph, ensure you have:
+**Firefox** 60 or later - That's it! 🎉
 
-- **Firefox** 60 or later
-- **Python** 3.8 or later
-- **FFmpeg** (for video conversion)
-
-### Installing FFmpeg
-
-**Ubuntu/Debian:**
-```bash
-sudo apt update && sudo apt install ffmpeg
-```
-
-**macOS (Homebrew):**
-```bash
-brew install ffmpeg
-```
-
-**Windows:**
-```cmd
-winget install ffmpeg
-```
-Or download from [ffmpeg.org](https://ffmpeg.org/download.html) and add to PATH.
-
-### Verify Installation
-
-```bash
-python3 --version  # or python --version on Windows
-ffmpeg -version
-```
+Python and FFmpeg are **NOT required** - the installer will download portable versions automatically.
 
 ## Installation
 
-### Step 1: Download or Clone Repository
+### Quick Start (Windows)
 
+**1. Download WebMorph**
+
+Download the latest release from GitHub or clone the repository:
 ```bash
 git clone https://github.com/yourusername/webmorph.git
-cd webmorph
 ```
 
-### Step 2: Run Installation Script
+**⚠️ IMPORTANT:** Extract/clone to a simple path like `C:\WebMorph` (not in Downloads or Program Files)
 
-**⚠️ IMPORTANT**: The installer must be run on **each PC** where you want to use WebMorph, as it generates machine-specific configuration files.
+**2. Run the Installer**
 
-**Windows:**
+Navigate to the installation folder and run:
 ```cmd
 scripts\INSTALL.bat
 ```
 
 The installer will automatically:
-1. Check for Python 3.11 (downloads portable version if not found)
-2. Check for FFmpeg (downloads portable version if not found)
-3. Create native messaging host wrapper with correct paths
-4. Generate and register the manifest file with Firefox
-5. Configure everything for your specific installation directory
+- ✅ Check for system Python (downloads portable Python 3.11 if not found)
+- ✅ Check for system FFmpeg (downloads portable FFmpeg if not found)
+- ✅ Configure native messaging host with correct paths
+- ✅ Register everything with Firefox
+- ✅ Create all required configuration files
 
-**What gets installed:**
-- Portable Python (if needed) → `runtime/python/`
-- Portable FFmpeg (if needed) → `runtime/ffmpeg/`
-- Native host configuration → `native-host/`
+**What gets downloaded (only if needed):**
+- Portable Python 3.11 (~10 MB) → `runtime/python/`
+- Portable FFmpeg (~75 MB) → `runtime/ffmpeg/`
+- Configuration files → `native-host/`
 
-**No system-wide changes** - everything is self-contained in the installation folder!
+💡 **No admin rights required!** Everything is self-contained in the installation folder.
 
-### Step 3: Load Extension in Firefox
+**3. Load Extension in Firefox**
 
-1. Open Firefox and navigate to `about:debugging`
+1. Open Firefox and go to `about:debugging`
 2. Click **"This Firefox"** in the sidebar
 3. Click **"Load Temporary Add-on..."**
-4. Navigate to the `extension/` folder
+4. Browse to `[installation-folder]\extension\`
 5. Select `manifest.json`
-6. The extension icon should appear in your toolbar
+6. ✅ Done! The WebMorph icon appears in your toolbar
 
-> **Note:** For permanent installation, you can package the extension (see [Packaging](#packaging) section)
+**4. Verify Installation**
+
+Click the WebMorph icon - you should see:
+- ✅ **Extension**: Active
+- ✅ **Native Host**: Ready
+- ✅ **FFmpeg**: Ready
+
+If everything shows "Ready", you're all set!
+
+---
+
+### Important Notes
+
+⚠️ **Must run installer on each PC:**
+- The installer creates machine-specific configuration files
+- Downloaded files from GitHub **do NOT** include these files
+- Simply copying the folder to another PC **won't work**
+- Run `scripts\INSTALL.bat` on each machine where you use WebMorph
+
+⚠️ **Installation path matters:**
+- ✅ **Good**: `C:\WebMorph`, `C:\Tools\WebMorph`, `D:\Apps\WebMorph`
+- ❌ **Bad**: `C:\Users\Name\Downloads\...`, `C:\Program Files\...`
+- Use short paths without spaces in folder names
+- Avoid the Downloads folder (permission issues)
+
+⚠️ **Don't move the folder after installation:**
+- If you need to move it, run the installer again after moving
+- The configuration files contain absolute paths
+
+---
+
+### Manual Installation (If You Already Have Python/FFmpeg)
+
+If you prefer using your system Python and FFmpeg:
+
+1. Ensure you have Python 3.8+ and FFmpeg installed
+2. Run the installer anyway - it will detect them and skip downloads
+3. The installer still needs to create configuration files
+
+---
+
+### Uninstallation
+
+To uninstall WebMorph:
+
+1. Remove the extension from Firefox (`about:addons`)
+2. Delete the installation folder
+3. (Optional) Clean registry: Delete `HKCU\Software\Mozilla\NativeMessagingHosts\com.fimp4fx.webm_converter`
+
+That's it - no other traces left on your system!
 
 ## Configuration
 
@@ -177,31 +203,43 @@ Access settings by clicking the **⚙️ Settings** button in the popup.
 
 ## Troubleshooting
 
-### Native Host Not Connecting
+### ❌ Native Host Not Connecting
 
 **Symptoms:**
 - Popup shows "Native Host: Not Found"
 - Extension connects then immediately disconnects
-- Conversions don't start
+- Firefox console shows "Disconnected from native host"
 
 **Solutions:**
-1. **Did you run the installer on THIS PC?**
-   - The installer must be run on each computer where you use WebMorph
-   - Downloaded/cloned files don't include machine-specific configuration
-   - Run `scripts\INSTALL.bat` to generate the required files
 
-2. **Re-run the installer:**
-   ```cmd
-   scripts\INSTALL.bat
-   ```
+**1. Wrong installation path?**
+- ❌ If installed in `Downloads`, `Desktop`, or paths with spaces
+- ✅ Move to `C:\WebMorph` or similar simple path
+- Run `scripts\INSTALL.bat` again
 
-3. **Check the log file:**
-   - Open `native-host\host.log` to see detailed error messages
-   - This will show if Python is missing modules or FFmpeg failed
+**2. Forgot to run the installer?**
+- Downloaded files don't include configuration
+- **You MUST run** `scripts\INSTALL.bat` on THIS computer
+- Simply copying the folder from another PC won't work
 
-4. **Restart Firefox completely:**
-   - Close ALL Firefox windows
-   - Reopen Firefox and test again
+**3. Moved the folder after installation?**
+- Configuration files contain absolute paths
+- Run `scripts\INSTALL.bat` again from the new location
+
+**4. Check the log file:**
+- Open `native-host\host.log` to see detailed errors
+- Common issues: Python module errors, FFmpeg not found
+
+**5. Restart Firefox completely:**
+- Close **ALL** Firefox windows (check system tray)
+- Reopen Firefox
+- Reload the extension from `about:debugging`
+
+**6. Registry issues (advanced):**
+- Open Registry Editor (`regedit`)
+- Navigate to: `HKEY_CURRENT_USER\Software\Mozilla\NativeMessagingHosts\com.fimp4fx.webm_converter`
+- Verify the path points to your `native-host\com.fimp4fx.webm_converter.json`
+- If wrong, delete the key and run installer again
 
 ### FFmpeg Not Found
 
