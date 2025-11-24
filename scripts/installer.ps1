@@ -1,7 +1,8 @@
 # WebMorph Native Host Installer
 # Installs Python, FFmpeg, and configures native messaging for Firefox
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
+$global:InstallationFailed = $false
 
 # Get the script's directory and project root
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -154,12 +155,20 @@ if (-not $pythonFound) {
             $pythonFound = $true
         } else {
             Write-Color "  [ERROR] Python installation failed - executable not found" "Red"
-            exit 1
+            $global:InstallationFailed = $true
         }
     } else {
         Write-Color "  [ERROR] Failed to download Python" "Red"
-        exit 1
+        $global:InstallationFailed = $true
     }
+}
+
+if ($global:InstallationFailed) {
+    Write-Host ""
+    Write-Color "Installation cannot continue due to errors above." "Red"
+    Write-Host ""
+    pause
+    exit 1
 }
 
 Write-Color "  Python executable: $pythonExe" "Gray"
@@ -229,12 +238,12 @@ if (-not $ffmpegFound) {
                     $ffmpegFound = $true
                 } else {
                     Write-Color "  [ERROR] FFmpeg extraction failed" "Red"
-                    exit 1
+                    $global:InstallationFailed = $true
                 }
             } else {
                 $zip.Dispose()
                 Write-Color "  [ERROR] Could not find ffmpeg.exe in archive" "Red"
-                exit 1
+                $global:InstallationFailed = $true
             }
 
         } catch {
@@ -242,12 +251,20 @@ if (-not $ffmpegFound) {
             if (Test-Path $ffmpegZip) {
                 Remove-Item $ffmpegZip -Force -ErrorAction SilentlyContinue
             }
-            exit 1
+            $global:InstallationFailed = $true
         }
     } else {
         Write-Color "  [ERROR] Failed to download FFmpeg" "Red"
-        exit 1
+        $global:InstallationFailed = $true
     }
+}
+
+if ($global:InstallationFailed) {
+    Write-Host ""
+    Write-Color "Installation cannot continue due to errors above." "Red"
+    Write-Host ""
+    pause
+    exit 1
 }
 
 Write-Color "  FFmpeg executable: $ffmpegExe" "Gray"
@@ -261,6 +278,11 @@ Write-Color "[3/5] Creating native host wrapper..." "Cyan"
 # Ensure native-host directory exists
 if (-not (Test-Path $nativeHostDir)) {
     Write-Color "  [ERROR] native-host directory not found: $nativeHostDir" "Red"
+    $global:InstallationFailed = $true
+    Write-Host ""
+    Write-Color "Installation cannot continue due to errors above." "Red"
+    Write-Host ""
+    pause
     exit 1
 }
 
@@ -283,6 +305,11 @@ if (Test-Path $wrapperScript) {
     Write-Color "  [OK] Created host wrapper" "Green"
 } else {
     Write-Color "  [ERROR] Failed to create wrapper" "Red"
+    $global:InstallationFailed = $true
+    Write-Host ""
+    Write-Color "Installation cannot continue due to errors above." "Red"
+    Write-Host ""
+    pause
     exit 1
 }
 
@@ -308,6 +335,11 @@ if (Test-Path $hostManifest) {
     Write-Color "  [OK] Created manifest" "Green"
 } else {
     Write-Color "  [ERROR] Failed to create manifest" "Red"
+    $global:InstallationFailed = $true
+    Write-Host ""
+    Write-Color "Installation cannot continue due to errors above." "Red"
+    Write-Host ""
+    pause
     exit 1
 }
 
@@ -336,6 +368,11 @@ try {
 
 } catch {
     Write-Color "  [ERROR] Failed to register with Firefox: $_" "Red"
+    $global:InstallationFailed = $true
+    Write-Host ""
+    Write-Color "Installation cannot continue due to errors above." "Red"
+    Write-Host ""
+    pause
     exit 1
 }
 

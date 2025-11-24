@@ -15,12 +15,14 @@ echo Press any key to start installation...
 pause >nul
 
 REM Launch PowerShell installer
-powershell.exe -ExecutionPolicy Bypass -File "%~dp0installer.ps1"
+powershell.exe -ExecutionPolicy Bypass -NoProfile -File "%~dp0installer.ps1"
 
 REM Check if PowerShell exited successfully
 if %ERRORLEVEL% EQU 0 (
     echo.
     echo Installation completed!
+    echo.
+    pause
 ) else (
     echo.
     echo Installation failed with error code: %ERRORLEVEL%
