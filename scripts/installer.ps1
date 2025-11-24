@@ -116,11 +116,15 @@ $pythonFound = $false
 # Check system Python
 $systemPython = Get-Command python -ErrorAction SilentlyContinue
 if ($systemPython) {
-    $version = & python --version 2>&1
-    if ($version -match "Python 3") {
-        Write-Color "  [OK] Found system Python: $version" "Green"
-        $pythonExe = $systemPython.Source
-        $pythonFound = $true
+    try {
+        $version = & python --version 2>&1
+        if ($version -match "Python 3") {
+            Write-Color "  [OK] Found system Python: $version" "Green"
+            $pythonExe = $systemPython.Source
+            $pythonFound = $true
+        }
+    } catch {
+        Write-Color "  Python command found but failed to execute" "Yellow"
     }
 }
 
@@ -172,10 +176,14 @@ $ffmpegFound = $false
 # Check system FFmpeg
 $systemFFmpeg = Get-Command ffmpeg -ErrorAction SilentlyContinue
 if ($systemFFmpeg) {
-    $version = & ffmpeg -version 2>&1 | Select-Object -First 1
-    Write-Color "  [OK] Found system FFmpeg: $version" "Green"
-    $ffmpegExe = $systemFFmpeg.Source
-    $ffmpegFound = $true
+    try {
+        $version = & ffmpeg -version 2>&1 | Select-Object -First 1
+        Write-Color "  [OK] Found system FFmpeg: $version" "Green"
+        $ffmpegExe = $systemFFmpeg.Source
+        $ffmpegFound = $true
+    } catch {
+        Write-Color "  FFmpeg command found but failed to execute" "Yellow"
+    }
 }
 
 # Download portable FFmpeg if not found
