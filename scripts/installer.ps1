@@ -31,7 +31,7 @@ function Write-Color {
     Write-Host $Text -ForegroundColor $Color
 }
 
-# Helper function to download files with progress
+# Helper function to download files
 function Download-File {
     param(
         [string]$Url,
@@ -39,36 +39,19 @@ function Download-File {
     )
 
     try {
-        Write-Color "  Starting download..." "Yellow"
-        Write-Color "  URL: $Url" "Gray"
+        Write-Color "  Downloading from: $Url" "Gray"
+        Write-Color "  Please wait, this may take several minutes..." "Yellow"
 
-        # Use BitsTransfer if available (shows better progress)
-        if (Get-Command Start-BitsTransfer -ErrorAction SilentlyContinue) {
-            Write-Color "  Using BITS transfer (with progress)..." "Gray"
-            Start-BitsTransfer -Source $Url -Destination $Output -DisplayName "Downloading file" -Description "Please wait..."
+        $webClient = New-Object System.Net.WebClient
+        $webClient.DownloadFile($Url, $Output)
+        $webClient.Dispose()
 
-            if (Test-Path $Output) {
-                $downloadedSize = [math]::Round((Get-Item $Output).Length / 1MB, 2)
-                Write-Color "  [OK] Download completed ($downloadedSize MB)" "Green"
-                return $true
-            } else {
-                throw "Downloaded file not found"
-            }
+        if (Test-Path $Output) {
+            $downloadedSize = [math]::Round((Get-Item $Output).Length / 1MB, 2)
+            Write-Color "  [OK] Download completed ($downloadedSize MB)" "Green"
+            return $true
         } else {
-            # Fallback to WebClient with simple progress
-            Write-Color "  Downloading (please wait, this may take several minutes)..." "Gray"
-
-            $webClient = New-Object System.Net.WebClient
-            $webClient.DownloadFile($Url, $Output)
-            $webClient.Dispose()
-
-            if (Test-Path $Output) {
-                $downloadedSize = [math]::Round((Get-Item $Output).Length / 1MB, 2)
-                Write-Color "  [OK] Download completed ($downloadedSize MB)" "Green"
-                return $true
-            } else {
-                throw "Downloaded file not found"
-            }
+            throw "Downloaded file not found"
         }
 
     } catch {
