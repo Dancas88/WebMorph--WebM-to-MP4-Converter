@@ -1,5 +1,7 @@
 # WebMorph - Guida all'Installazione
 
+🇬🇧 **[English Version →](INSTALL.md)**
+
 ## Installazione Rapida (Windows)
 
 ### Step 1: Scarica
