@@ -135,6 +135,17 @@ if (-not $pythonFound) {
 
         if (Test-Path $pythonExe) {
             Write-Color "  [OK] Python installed successfully to: $pythonDir" "Green"
+
+            # Enable standard library for embedded Python
+            Write-Color "  Configuring Python standard library..." "Yellow"
+            $pthFile = Join-Path $pythonDir "python311._pth"
+            if (Test-Path $pthFile) {
+                $pthContent = Get-Content $pthFile
+                $pthContent = $pthContent -replace "#import site", "import site"
+                $pthContent | Set-Content $pthFile
+                Write-Color "  [OK] Python standard library enabled" "Green"
+            }
+
             $pythonFound = $true
         } else {
             Write-Color "  [ERROR] Python installation failed - executable not found" "Red"

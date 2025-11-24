@@ -70,31 +70,28 @@ git clone https://github.com/yourusername/webmorph.git
 cd webmorph
 ```
 
-### Step 2: Run Setup Script
+### Step 2: Run Installation Script
 
-The setup script will configure the native messaging host automatically.
-
-**Linux/macOS:**
-```bash
-chmod +x setup.sh
-./setup.sh
-```
+**⚠️ IMPORTANT**: The installer must be run on **each PC** where you want to use WebMorph, as it generates machine-specific configuration files.
 
 **Windows:**
 ```cmd
-setup.bat
+scripts\INSTALL.bat
 ```
 
-**Alternative (Manual Setup):**
-```cmd
-setup-manual.bat
-```
+The installer will automatically:
+1. Check for Python 3.11 (downloads portable version if not found)
+2. Check for FFmpeg (downloads portable version if not found)
+3. Create native messaging host wrapper with correct paths
+4. Generate and register the manifest file with Firefox
+5. Configure everything for your specific installation directory
 
-The setup script will:
-1. Verify Python and FFmpeg installation
-2. Create the native messaging manifest
-3. Register the native host with Firefox
-4. Configure all necessary paths
+**What gets installed:**
+- Portable Python (if needed) → `runtime/python/`
+- Portable FFmpeg (if needed) → `runtime/ffmpeg/`
+- Native host configuration → `native-host/`
+
+**No system-wide changes** - everything is self-contained in the installation folder!
 
 ### Step 3: Load Extension in Firefox
 
@@ -184,19 +181,27 @@ Access settings by clicking the **⚙️ Settings** button in the popup.
 
 **Symptoms:**
 - Popup shows "Native Host: Not Found"
+- Extension connects then immediately disconnects
 - Conversions don't start
 
 **Solutions:**
-1. Re-run the setup script:
-   ```bash
-   ./setup.sh  # or setup.bat on Windows
+1. **Did you run the installer on THIS PC?**
+   - The installer must be run on each computer where you use WebMorph
+   - Downloaded/cloned files don't include machine-specific configuration
+   - Run `scripts\INSTALL.bat` to generate the required files
+
+2. **Re-run the installer:**
+   ```cmd
+   scripts\INSTALL.bat
    ```
-2. Verify Python is in PATH:
-   ```bash
-   which python3  # Linux/macOS
-   where python   # Windows
-   ```
-3. Check Firefox console (`about:debugging` → Inspect → Console) for errors
+
+3. **Check the log file:**
+   - Open `native-host\host.log` to see detailed error messages
+   - This will show if Python is missing modules or FFmpeg failed
+
+4. **Restart Firefox completely:**
+   - Close ALL Firefox windows
+   - Reopen Firefox and test again
 
 ### FFmpeg Not Found
 
